@@ -1,5 +1,6 @@
 package com.example.bankingapi.controller;
 
+import com.example.bankingapi.dto.TransferRequest;
 import com.example.bankingapi.entity.Account;
 import com.example.bankingapi.service.AccountService;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +40,19 @@ public class AccountController {
     public String deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
         return "Account with ID " + id + " has been deleted.";
+    }
+
+    @GetMapping("/count")
+    public long getAccountCount() {
+        return accountService.getAccountCount();
+    }
+
+    @PostMapping("/transfer")
+    public String transfer(@RequestBody TransferRequest transferRequest) {
+        return accountService.transfer(
+                transferRequest.getFromAccountId(),
+                transferRequest.getToAccountId(),
+                transferRequest.getAmount()
+        );
     }
 }
