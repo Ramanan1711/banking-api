@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -65,5 +67,28 @@ public class AuthController {
 
         userRepository.save(user);
         return "User registered successfully.";
+    }
+
+    @GetMapping("/profile")
+    public Object getProfile(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return "Authorization header is missing or invalid.";
+        }
+
+        String token = authHeader.substring(7);
+        try {
+            String username = jwtTokenProvider.extractUsername(token);
+
+            Optional<User> user = userRepository.findByUsername(username);
+            if (user.isPresent()) {
+                return user.get();
+            } else {
+                return "User not found.";
+            }
+        } catch (Exception e) {
+            return "Invalid token.";
+        }
     }
 }

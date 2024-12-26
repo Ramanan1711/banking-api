@@ -25,7 +25,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Public endpoints
+                        .requestMatchers("/auth/**").permitAll() // Public endpoints for authentication
+                        .requestMatchers("/transactions/**").permitAll() // Public access to transactions
+                        .requestMatchers("/accounts/**").permitAll() // Public access to accounts
                         .anyRequest().authenticated() // All other endpoints require authentication
                 )
                 .formLogin(form -> form
