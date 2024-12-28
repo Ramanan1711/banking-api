@@ -7,7 +7,10 @@ import com.example.bankingapi.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -64,5 +67,35 @@ public class TransactionService {
         return transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with ID: " + id));
     }
+
+    public List<Map<String, Object>> getMonthlyTransactions() {
+        List<Transaction> transactions = transactionRepository.findAll();
+
+        // Group transactions by month and type (CREDIT/DEBIT)
+        return transactions.stream()
+                .filter(transaction -> transaction.getTimestamp() != null)
+                .collect(Collectors.groupingBy(transaction -> transaction.getTimestamp().getMonth().toString() + " " + transaction.getTimestamp().getYear()))
+                .entrySet().stream()
+                .map(entry -> {
+                    String month = entry.getKey();
+                    Double creditAmount = entry.getValue().stream()
+                            .filter(t -> t.getType().equals("CREDIT"))
+                            .mapToDouble(Transaction::getAmount)
+                            .sum();
+                    Double debitAmount = entry.getValue().stream()
+                            .filter(t -> t.getType().equals("DEBIT"))
+                            .mapToDouble(Transaction::getAmount)
+                            .sum();
+
+                    // Use HashMap to create a map with the correct type
+                    Map<String, Object> resultMap = new HashMap<>();
+                    resultMap.put("month", month);
+                    resultMap.put("CREDIT", creditAmount);
+                    resultMap.put("DEBIT", debitAmount);
+                    return resultMap;
+                })
+                .collect(Collectors.toList());
+    }
+
 
 }

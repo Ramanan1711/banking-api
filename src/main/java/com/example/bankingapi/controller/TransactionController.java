@@ -5,6 +5,7 @@ import com.example.bankingapi.service.TransactionService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/transactions")
@@ -43,5 +44,10 @@ public class TransactionController {
     @GetMapping("/transaction/{id}")
     public Transaction getTransactionById(@PathVariable Long id) {
         return transactionService.getTransactionById(id);
+    }
+
+    @GetMapping("/monthly")
+    public List<Map<String, Object>> getMonthlyTransactions() {
+        return transactionService.getMonthlyTransactions();
     }
 }
