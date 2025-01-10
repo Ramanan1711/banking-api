@@ -23,11 +23,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/webhooks/stripe") // Disable CSRF for the webhook
+                        .disable()) // Disable CSRF globally if not needed elsewhere
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Public endpoints for authentication
                         .requestMatchers("/transactions/**").permitAll() // Public access to transactions
                         .requestMatchers("/accounts/**").permitAll() // Public access to accounts
+                        .requestMatchers("/api/payment/create-payment-intent").permitAll() // Allow public access to payment creation
                         .anyRequest().authenticated() // All other endpoints require authentication
                 )
                 .formLogin(form -> form
